@@ -1,0 +1,887 @@
+type Query {
+    """Dumb query as GraphQL service needs to provide Query"""
+    empty: String
+}
+
+type Mutation {
+    """ Mutation that updates the order status data in the backend"""
+    UpdateOrder(order: UpdateOrderRequest!): Boolean!
+}
+
+input UpdateOrderRequest {
+    """The ID for the application that this order is made on"""
+    appID: String!
+    """The nonce that is used for this order"""
+    nonce: String!
+    """The external user ID ofthe user"""
+    externalUserID: String!
+    """The order status"""
+    orderStatus: OrderStatus!
+    """The order details"""
+    details: OrderDetails!
+    """The store ID of this order"""
+    storeID: String!
+}
+
+enum OrderStatus {
+    """Received success status from merchant"""
+    SUCCESS
+    """Received failure status from merchant"""
+    FAILURE
+}
+
+input OrderDetails {
+    """The external order ID"""
+    externalOrderID: String!
+    """Shipping address for the order"""
+    shippingAddress: Address!
+    """Contact details provided by the user while checking out"""
+    contact: ContactDetails!
+    """Represents the option selected for shipping"""
+    shippingOption: ShippingOption!
+    """sum of all billing items"""
+    subtotalPrice: CurrencyAmount!
+    """Total tax for the order"""
+    totalTax: CurrencyAmount!
+    """Sum of subtotal, shipping price, and total tax"""
+    totalPrice: CurrencyAmount!
+    """THe order identifier for the user"""
+    externalOrderName: String
+    """Discount code applied to the order"""
+    discountCode: String
+    """Information about what kind of discount was applied to this order"""
+    discountInfo: DiscountInfo
+    """Timestamp of the order creation"""
+    createdAt: Time
+    """Timestamp of when the order was last updated"""
+    updatedAt: Time
+    """Timestamp for when the order was charged"""
+    chargeTime: Time
+    """the state of billing"""
+    billingPurchaseState: BillingPurchaseState!
+    """Line of items in this order"""
+    billingItems: [BillingItem!]!
+}
+
+
+input Address {
+    """The first line of the address"""
+    address1: String!
+    """The second line of the address"""
+    address2: String
+    """City"""
+    city: String!
+    """State"""
+    state: String!
+    """Country"""
+    country: CountryCode!
+    """Zip code"""
+    zip: String!
+    """First name"""
+    firstName: String!
+    """Last name"""
+    lastName: String!
+}
+
+input ContactDetails {
+    """Email of the user"""
+    email: String
+    """Phone number of the user"""
+    phone: String
+}
+
+input DiscountInfo {
+    """True if the discount was applied successfully"""
+    applicable: Boolean!
+    """Total currency amount that was saved by the discount"""
+    amount: CurrencyAmount!
+    """Value that depends on value_type. If value_type is PERCENTAGE, this is the percentage off. If value_type is
+    FREE_SHIPPING, this is always 100.0. If value_type is FIXED_AMOUNT, this is the total value off (may be greater
+    ######## than amount)"""
+    value: String!
+    """Describes what kind of discount was applied"""
+    valueType: ValueType!
+    """Flag that indicates if this discount was applied automatically (without the user manually entering a discount code)"""
+    automatic: Boolean!
+}
+
+enum ValueType {
+    UNSET
+    PERCENTAGE
+    FIXED_AMOUNT
+    FREE_SHIPPING
+}
+
+input CurrencyAmount {
+    """The amount.
+    Exmaple, 10.50 for $10.50"""
+    amount: Float!
+    """Currency of the price"""
+    currency: Currency!
+}
+
+enum PaymentMethod {
+    UNKNOWN
+    COUPON
+    CREDIT_CARD
+    DIRECT_DEBIT
+    IN_APP_PURCHASE
+    LINE_OF_CREDIT
+    PAYPAL
+}
+
+enum BillingPurchaseState {
+    UNKONWN
+    PENDING
+    COMPLETE
+    FAILED
+}
+
+input CheckoutShippingOption {
+    """The price and currency type of this option"""
+    price: CurrencyAmount!
+    """The tax on this cart with this selected shipping option"""
+    totalTax: CurrencyAmount!
+    """Subtotal + shipping + total tax of this cart"""
+    totalPrice: CurrencyAmount!
+    """The price of the cart without tax or shipping"""
+    subtotalPrice: CurrencyAmount!
+    """Name of the option"""
+    title: String
+}
+
+input ShippingOption {
+    """human-readable unique identifier for this shipping rate
+    example: shopify-Free%20Delivery%20(5-14%20Biz%20Days)-0.00 """
+    handle: String!
+    """price of the shipping rate"""
+    price: CurrencyAmount!
+    """title of the shipping rate
+    example: Free Delivery"""
+    title: String!
+}
+
+input BillingItem {
+    """Information of the item"""
+    itemInfo: ItemInfo!
+    """Description or title of the variants selected"""
+    variantDescription: String
+    """Url of the product image"""
+    productImageUrl: String
+}
+
+input ItemInfo {
+    """Product ID in UUID format"""
+    productID: String
+    """Title of the product"""
+    productTitle: String!
+    """Product Variant ID
+    set to 0 if unavaliable"""
+    variantID: Int64!
+    """Quantity of the product(s)"""
+    quantity: Int!
+    """Price of a signle unit"""
+    unitPrice: CurrencyAmount!
+    """Total cost of the items
+    quantity x unit price"""
+    totalCost: CurrencyAmount!
+    """strikethrough unit price"""
+    strikethroughUnitPrice: CurrencyAmount
+    """strikethrough price of this line item quantity x cost"""
+    strikethroughLinePrice: CurrencyAmount
+    """Whether the item requires shipping"""
+    requiresShipping: Boolean!
+    """Whether the item is taxable"""
+    taxable: Boolean!
+}
+
+enum Currency {
+    UNKNOWN_CURRENCY
+    AED
+    AFN
+    ALL
+    AMD
+    ANG
+    AOA
+    ARS
+    AUD
+    AWG
+    AZN
+    BAM
+    BBD
+    BDT
+    BGN
+    BHD
+    BIF
+    BMD
+    BND
+    BOB
+    BOV
+    BRL
+    BSD
+    BTN
+    BWP
+    BYN
+    BZD
+    CAD
+    CDF
+    CHE
+    CHF
+    CHW
+    CLF
+    CLP
+    CNY
+    COP
+    COU
+    CRC
+    CUC
+    CUP
+    CVE
+    CZK
+    DJF
+    DKK
+    DOP
+    DZD
+    EGP
+    ERN
+    ETB
+    EUR
+    FJD
+    FKP
+    GBP
+    GEL
+    GHS
+    GIP
+    GMD
+    GNF
+    GTQ
+    GYD
+    HKD
+    HNL
+    HRK
+    HTG
+    HUF
+    IDR
+    ILS
+    INR
+    IQD
+    IRR
+    ISK
+    JMD
+    JOD
+    JPY
+    KES
+    KGS
+    KHR
+    KMF
+    KPW
+    KRW
+    KWD
+    KYD
+    KZT
+    LAK
+    LBP
+    LKR
+    LRD
+    LSL
+    LYD
+    MAD
+    MDL
+    MGA
+    MKD
+    MMK
+    MNT
+    MOP
+    MRU
+    MUR
+    MVR
+    MWK
+    MXN
+    MXV
+    MYR
+    MZN
+    NAD
+    NGN
+    NIO
+    NOK
+    NPR
+    NZD
+    OMR
+    PAB
+    PEN
+    PGK
+    PHP
+    PKR
+    PLN
+    PYG
+    QAR
+    RON
+    RSD
+    RUB
+    RWF
+    SAR
+    SBD
+    SCR
+    SDG
+    SEK
+    SGD
+    SHP
+    SLL
+    SOS
+    SRD
+    SSP
+    STN
+    SVC
+    SYP
+    SZL
+    THB
+    TJS
+    TMT
+    TND
+    TOP
+    TRY
+    TTD
+    TWD
+    TZS
+    UAH
+    UGX
+    USD
+    USN
+    UYI
+    UYU
+    UYW
+    UZS
+    VES
+    VND
+    VUV
+    WST
+    XAF
+    XAG
+    XAU
+    XBA
+    XBB
+    XBC
+    XBD
+    XCD
+    XDR
+    XOF
+    XPD
+    XPF
+    XPT
+    XSU
+    XTS
+    XUA
+    XXX
+    YER
+    ZAR
+    ZMW
+    ZWL
+}
+
+enum CountryCode {
+    """Unset"""
+    UNSET
+    """Andorra"""
+    AD
+    """United Arab Emirates"""
+    AE
+    """Afghanistan"""
+    AF
+    """Antigua and Barbuda"""
+    AG
+    """Anguilla"""
+    AI
+    """Albania"""
+    AL
+    """Armenia"""
+    AM
+    """Angola"""
+    AO
+    """Antarctica"""
+    AQ
+    """Argentina"""
+    AR
+    """American Samoa"""
+    AS
+    """Austria"""
+    AT
+    """Australia"""
+    AU
+    """Aruba"""
+    AW
+    """Åland Islands"""
+    AX
+    """Azerbaijan"""
+    AZ
+    """Bosnia and Herzegovina"""
+    BA
+    """Barbados"""
+    BB
+    """Bangladesh"""
+    BD
+    """Belgium"""
+    BE
+    """Burkina Faso"""
+    BF
+    """Bulgaria"""
+    BG
+    """Bahrain"""
+    BH
+    """Burundi"""
+    BI
+    """Benin"""
+    BJ
+    """Saint Barthélemy"""
+    BL
+    """Bermuda"""
+    BM
+    """Brunei Darussalam"""
+    BN
+    """Bolivia (Plurinational State of)"""
+    BO
+    """Bonaire, Sint Eustatius and Saba"""
+    BQ
+    """Brazil"""
+    BR
+    """Bahamas"""
+    BS
+    """Bhutan"""
+    BT
+    """Bouvet Island"""
+    BV
+    """Botswana"""
+    BW
+    """Belarus"""
+    BY
+    """Belize"""
+    BZ
+    """Canada"""
+    CA
+    """Cocos (Keeling) Islands"""
+    CC
+    """Congo, Democratic Republic of the"""
+    CD
+    """Central African Republic"""
+    CF
+    """Congo"""
+    CG
+    """Switzerland"""
+    CH
+    """Côte d'Ivoire"""
+    CI
+    """Cook Islands"""
+    CK
+    """Chile"""
+    CL
+    """Cameroon"""
+    CM
+    """China"""
+    CN
+    """Colombia"""
+    CO
+    """Costa Rica"""
+    CR
+    """Cuba"""
+    CU
+    """Cabo Verde"""
+    CV
+    """Curaçao"""
+    CW
+    """Christmas Island"""
+    CX
+    """Cyprus"""
+    CY
+    """Czechia"""
+    CZ
+    """Germany"""
+    DE
+    """Djibouti"""
+    DJ
+    """Denmark"""
+    DK
+    """Dominica"""
+    DM
+    """Dominican Republic"""
+    DO
+    """Algeria"""
+    DZ
+    """Ecuador"""
+    EC
+    """Estonia"""
+    EE
+    """Egypt"""
+    EG
+    """Western Sahara"""
+    EH
+    """Eritrea"""
+    ER
+    """Spain"""
+    ES
+    """Ethiopia"""
+    ET
+    """Finland"""
+    FI
+    """Fiji"""
+    FJ
+    """Falkland Islands (Malvinas)"""
+    FK
+    """Micronesia (Federated States of)"""
+    FM
+    """Faroe Islands"""
+    FO
+    """France"""
+    FR
+    """Gabon"""
+    GA
+    """United Kingdom of Great Britain and Northern Ireland"""
+    GB
+    """Grenada"""
+    GD
+    """Georgia"""
+    GE
+    """French Guiana"""
+    GF
+    """Guernsey"""
+    GG
+    """Ghana"""
+    GH
+    """Gibraltar"""
+    GI
+    """Greenland"""
+    GL
+    """Gambia"""
+    GM
+    """Guinea"""
+    GN
+    """Guadeloupe"""
+    GP
+    """Equatorial Guinea"""
+    GQ
+    """Greece"""
+    GR
+    """South Georgia and the South Sandwich Islands"""
+    GS
+    """Guatemala"""
+    GT
+    """Guam"""
+    GU
+    """Guinea-Bissau"""
+    GW
+    """Guyana"""
+    GY
+    """Hong Kong"""
+    HK
+    """Heard Island and McDonald Islands"""
+    HM
+    """Honduras"""
+    HN
+    """Croatia"""
+    HR
+    """Haiti"""
+    HT
+    """Hungary"""
+    HU
+    """Indonesia"""
+    ID
+    """Ireland"""
+    IE
+    """Israel"""
+    IL
+    """Isle of Man"""
+    IM
+    """India"""
+    IN
+    """British Indian Ocean Territory"""
+    IO
+    """Iraq"""
+    IQ
+    """Iran (Islamic Republic of)"""
+    IR
+    """Iceland"""
+    IS
+    """Italy"""
+    IT
+    """Jersey"""
+    JE
+    """Jamaica"""
+    JM
+    """Jordan"""
+    JO
+    """Japan"""
+    JP
+    """Kenya"""
+    KE
+    """Kyrgyzstan"""
+    KG
+    """Cambodia"""
+    KH
+    """Kiribati"""
+    KI
+    """Comoros"""
+    KM
+    """Saint Kitts and Nevis"""
+    KN
+    """Korea (Democratic People's Republic of)"""
+    KP
+    """Korea, Republic of"""
+    KR
+    """Kuwait"""
+    KW
+    """Cayman Islands"""
+    KY
+    """Kazakhstan"""
+    KZ
+    """Lao People's Democratic Republic"""
+    LA
+    """Lebanon"""
+    LB
+    """Saint Lucia"""
+    LC
+    """Liechtenstein"""
+    LI
+    """Sri Lanka"""
+    LK
+    """Liberia"""
+    LR
+    """Lesotho"""
+    LS
+    """Lithuania"""
+    LT
+    """Luxembourg"""
+    LU
+    """Latvia"""
+    LV
+    """Libya"""
+    LY
+    """Morocco"""
+    MA
+    """Monaco"""
+    MC
+    """Moldova, Republic of"""
+    MD
+    """Montenegro"""
+    ME
+    """Saint Martin (French part)"""
+    MF
+    """Madagascar"""
+    MG
+    """Marshall Islands"""
+    MH
+    """North Macedonia"""
+    MK
+    """Mali"""
+    ML
+    """Myanmar"""
+    MM
+    """Mongolia"""
+    MN
+    """Macao"""
+    MO
+    """Northern Mariana Islands"""
+    MP
+    """Martinique"""
+    MQ
+    """Mauritania"""
+    MR
+    """Montserrat"""
+    MS
+    """Malta"""
+    MT
+    """Mauritius"""
+    MU
+    """Maldives"""
+    MV
+    """Malawi"""
+    MW
+    """Mexico"""
+    MX
+    """Malaysia"""
+    MY
+    """Mozambique"""
+    MZ
+    """Namibia"""
+    NA
+    """New Caledonia"""
+    NC
+    """Niger"""
+    NE
+    """Norfolk Island"""
+    NF
+    """Nigeria"""
+    NG
+    """Nicaragua"""
+    NI
+    """Netherlands"""
+    NL
+    """Norway"""
+    NO
+    """Nepal"""
+    NP
+    """Nauru"""
+    NR
+    """Niue"""
+    NU
+    """New Zealand"""
+    NZ
+    """Oman"""
+    OM
+    """Panama"""
+    PA
+    """Peru"""
+    PE
+    """French Polynesia"""
+    PF
+    """Papua New Guinea"""
+    PG
+    """Philippines"""
+    PH
+    """Pakistan"""
+    PK
+    """Poland"""
+    PL
+    """Saint Pierre and Miquelon"""
+    PM
+    """Pitcairn"""
+    PN
+    """Puerto Rico"""
+    PR
+    """Palestine, State of"""
+    PS
+    """Portugal"""
+    PT
+    """Palau"""
+    PW
+    """Paraguay"""
+    PY
+    """Qatar"""
+    QA
+    """Réunion"""
+    RE
+    """Romania"""
+    RO
+    """Serbia"""
+    RS
+    """Russian Federation"""
+    RU
+    """Rwanda"""
+    RW
+    """Saudi Arabia"""
+    SA
+    """Solomon Islands"""
+    SB
+    """Seychelles"""
+    SC
+    """Sudan"""
+    SD
+    """Sweden"""
+    SE
+    """Singapore"""
+    SG
+    """Saint Helena, Ascension and Tristan da Cunha"""
+    SH
+    """Slovenia"""
+    SI
+    """Svalbard and Jan Mayen"""
+    SJ
+    """Slovakia"""
+    SK
+    """Sierra Leone"""
+    SL
+    """San Marino"""
+    SM
+    """Senegal"""
+    SN
+    """Somalia"""
+    SO
+    """Suriname"""
+    SR
+    """South Sudan"""
+    SS
+    """Sao Tome and Principe"""
+    ST
+    """El Salvador"""
+    SV
+    """Sint Maarten (Dutch part)"""
+    SX
+    """Syrian Arab Republic"""
+    SY
+    """Eswatini"""
+    SZ
+    """Turks and Caicos Islands"""
+    TC
+    """Chad"""
+    TD
+    """French Southern Territories"""
+    TF
+    """Togo"""
+    TG
+    """Thailand"""
+    TH
+    """Tajikistan"""
+    TJ
+    """Tokelau"""
+    TK
+    """Timor-Leste"""
+    TL
+    """Turkmenistan"""
+    TM
+    """Tunisia"""
+    TN
+    """Tonga"""
+    TO
+    """Turkey"""
+    TR
+    """Trinidad and Tobago"""
+    TT
+    """Tuvalu"""
+    TV
+    """Taiwan, Province of China"""
+    TW
+    """Tanzania, United Republic of"""
+    TZ
+    """Ukraine"""
+    UA
+    """Uganda"""
+    UG
+    """United States Minor Outlying Islands"""
+    UM
+    """United States of America"""
+    US
+    """Uruguay"""
+    UY
+    """Uzbekistan"""
+    UZ
+    """Holy See"""
+    VA
+    """Saint Vincent and the Grenadines"""
+    VC
+    """Venezuela (Bolivarian Republic of)"""
+    VE
+    """Virgin Islands (British)"""
+    VG
+    """Virgin Islands (U.S.)"""
+    VI
+    """Viet Nam"""
+    VN
+    """Vanuatu"""
+    VU
+    """Wallis and Futuna"""
+    WF
+    """Samoa"""
+    WS
+    """Yemen"""
+    YE
+    """Mayotte"""
+    YT
+    """South Africa"""
+    ZA
+    """Zambia"""
+    ZM
+    """Zimbabwe"""
+    ZW
+    """Unknown"""
+    ZZ
+}
+
+scalar Int64
+scalar Time
